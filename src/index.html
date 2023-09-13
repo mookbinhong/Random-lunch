@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lunch Decision App</title>
+</head>
+<body>
+  <h1>Lunch Decision App</h1>
+
+  <div>
+    <label for="restaurantInput">Enter a restaurant:</label>
+    <input type="text" id="restaurantInput">
+    <button onclick="addRestaurant()">Add Restaurant</button>
+  </div>
+
+  <div>
+    <h2>Submitted Restaurants:</h2>
+    <ul id="restaurantList"></ul>
+    <button onclick="getRandomChoice()">Get Random Choice</button>
+  </div>
+
+  <div>
+    <h2>Random Choice:</h2>
+    <p id="randomChoice"></p>
+  </div>
+
+  <script>
+    function addRestaurant() {
+      const restaurantInput = document.getElementById('restaurantInput');
+      const restaurant = restaurantInput.value;
+      if (restaurant.trim() !== '') {
+        fetch('http://localhost:3000/add-restaurant', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ restaurant }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            // alert(data.message);
+            restaurantInput.value = '';
+            getRestaurants();
+          });
+      }
+    }
+
+    function getRandomChoice() {
+      fetch('http://localhost:3000/get-random-choice')
+        .then(response => response.json())
+        .then(data => {
+          const randomChoice = document.getElementById('randomChoice');
+          if (data.randomChoice) {
+            randomChoice.textContent = data.randomChoice;
+          } else {
+            randomChoice.textContent = 'No restaurants submitted.';
+          }
+        });
+    }
+
+    function getRestaurants() {
+      fetch('http://localhost:3000/get-restaurants')
+        .then(response => response.json())
+        .then(data => {
+          const restaurantList = document.getElementById('restaurantList');
+          restaurantList.innerHTML = '';
+          data.restaurants.forEach(restaurant => {
+            const listItem = document.createElement('li');
+            listItem.textContent = restaurant;
+            restaurantList.appendChild(listItem);
+          });
+        });
+    }
+
+    getRestaurants();
+  </script>
+</body>
+
+</html>
